@@ -1,0 +1,25 @@
+{
+  "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "periods_per_day": 6,
+  "rooms": [
+    {"id": "R101", "capacity": 30},
+    {"id": "R102", "capacity": 25},
+    {"id": "R103", "capacity": 30},
+    {"id": "Lab1", "capacity": 20},
+    {"id": "Gym", "capacity": 40}
+  ],
+  "teachers": [
+    {"id": "T1", "name": "Mr. Smith"},
+    {"id": "T2", "name": "Ms. Johnson"},
+    {"id": "T3", "name": "Dr. Brown"},
+    {"id": "T4", "name": "Ms. Davis"},
+    {"id": "T5", "name": "Mr. Wilson"}
+  ],
+  "classes": [
+    {"id": "C1", "subject": "Mathematics", "teacher_id": "T1", "hours_per_week": 5},
+    {"id": "C2", "subject": "English", "teacher_id": "T2", "hours_per_week": 4},
+    {"id": "C3", "subject": "Physics", "teacher_id": "T3", "hours_per_week": 3},
+    {"id": "C4", "subject": "History", "teacher_id": "T4", "hours_per_week": 3},
+    {"id": "C5", "subject": "Physical Education", "teacher_id": "T5", "hours_per_week": 2}
+  ]
+}

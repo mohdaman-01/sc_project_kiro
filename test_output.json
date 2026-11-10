@@ -1,0 +1,244 @@
+{
+  "timetable": [
+    {
+      "day": "Monday",
+      "periods": [
+        {
+          "period": 1,
+          "class": "C2",
+          "subject": "English",
+          "teacher": "Ms. Johnson",
+          "room": "R101"
+        },
+        {
+          "period": 2,
+          "class": "C1",
+          "subject": "Mathematics",
+          "teacher": "Mr. Smith",
+          "room": "R101"
+        },
+        {
+          "period": 3,
+          "class": "C4",
+          "subject": "History",
+          "teacher": "Ms. Davis",
+          "room": "Gym"
+        },
+        {
+          "period": 4,
+          "class": "C1",
+          "subject": "Mathematics",
+          "teacher": "Mr. Smith",
+          "room": "Lab1"
+        },
+        {
+          "period": 5,
+          "class": "C5",
+          "subject": "Physical Education",
+          "teacher": "Mr. Wilson",
+          "room": "R103"
+        },
+        {
+          "period": 6,
+          "class": "C3",
+          "subject": "Physics",
+          "teacher": "Dr. Brown",
+          "room": "R103"
+        }
+      ]
+    },
+    {
+      "day": "Tuesday",
+      "periods": [
+        {
+          "period": 1,
+          "class": "C1",
+          "subject": "Mathematics",
+          "teacher": "Mr. Smith",
+          "room": "Lab1"
+        },
+        {
+          "period": 2,
+          "class": "C4",
+          "subject": "History",
+          "teacher": "Ms. Davis",
+          "room": "Gym"
+        },
+        {
+          "period": 3,
+          "class": "C3",
+          "subject": "Physics",
+          "teacher": "Dr. Brown",
+          "room": "Gym"
+        },
+        {
+          "period": 4,
+          "class": "C2",
+          "subject": "English",
+          "teacher": "Ms. Johnson",
+          "room": "R101"
+        },
+        {
+          "period": 5,
+          "class": "C5",
+          "subject": "Physical Education",
+          "teacher": "Mr. Wilson",
+          "room": "Lab1"
+        },
+        {
+          "period": 6,
+          "class": "C3",
+          "subject": "Physics",
+          "teacher": "Dr. Brown",
+          "room": "Gym"
+        }
+      ]
+    },
+    {
+      "day": "Wednesday",
+      "periods": [
+        {
+          "period": 1,
+          "class": "C2",
+          "subject": "English",
+          "teacher": "Ms. Johnson",
+          "room": "R102"
+        },
+        {
+          "period": 2,
+          "class": "C1",
+          "subject": "Mathematics",
+          "teacher": "Mr. Smith",
+          "room": "R103"
+        },
+        {
+          "period": 3,
+          "class": "C4",
+          "subject": "History",
+          "teacher": "Ms. Davis",
+          "room": "R101"
+        },
+        {
+          "period": 4,
+          "class": "C1",
+          "subject": "Mathematics",
+          "teacher": "Mr. Smith",
+          "room": "Lab1"
+        },
+        {
+          "period": 5,
+          "class": "C2",
+          "subject": "English",
+          "teacher": "Ms. Johnson",
+          "room": "R101"
+        },
+        {
+          "period": 6,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        }
+      ]
+    },
+    {
+      "day": "Thursday",
+      "periods": [
+        {
+          "period": 1,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 2,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 3,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 4,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 5,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 6,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        }
+      ]
+    },
+    {
+      "day": "Friday",
+      "periods": [
+        {
+          "period": 1,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 2,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 3,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 4,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 5,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        },
+        {
+          "period": 6,
+          "class": null,
+          "subject": null,
+          "teacher": null,
+          "room": null
+        }
+      ]
+    }
+  ],
+  "final_fitness": 0,
+  "best_fitness_history": [
+    0
+  ],
+  "generations_run": 1
+}
