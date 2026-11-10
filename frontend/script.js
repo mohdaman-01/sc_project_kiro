@@ -10,14 +10,28 @@ document.addEventListener('DOMContentLoaded', () => {
     loadExample();
 });
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    }[character]));
+}
+
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('visible');
+    clearTimeout(showToast.timeout);
+    showToast.timeout = setTimeout(() => toast.classList.remove('visible'), 4200);
+}
+
 function addSubjectRow(subject = '', teacher = '', hours = '') {
     const container = document.getElementById('subjects-container');
     const row = document.createElement('div');
     row.className = 'subject-row';
     row.innerHTML = `
-        <input type="text" placeholder="Subject" value="${subject}" class="subject-name">
-        <input type="text" placeholder="Teacher" value="${teacher}" class="teacher-name">
-        <input type="number" placeholder="Hours/week" value="${hours}" min="1" max="10" class="subject-hours">
+        <input type="text" aria-label="Subject" placeholder="e.g. Mathematics" value="${escapeHtml(subject)}" class="subject-name">
+        <input type="text" aria-label="Teacher" placeholder="e.g. Dr. Smith" value="${escapeHtml(teacher)}" class="teacher-name">
+        <input type="number" aria-label="Hours per week" placeholder="Hours" value="${escapeHtml(hours)}" min="1" max="10" class="subject-hours">
         <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
     `;
     container.appendChild(row);
@@ -28,8 +42,8 @@ function addRoomRow(roomId = '', capacity = '') {
     const row = document.createElement('div');
     row.className = 'room-row';
     row.innerHTML = `
-        <input type="text" placeholder="Room ID" value="${roomId}" class="room-id">
-        <input type="number" placeholder="Capacity" value="${capacity}" min="1" max="100" class="room-capacity">
+        <input type="text" aria-label="Room ID" placeholder="e.g. R101" value="${escapeHtml(roomId)}" class="room-id">
+        <input type="number" aria-label="Room capacity" placeholder="Capacity" value="${escapeHtml(capacity)}" min="1" max="100" class="room-capacity">
         <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
     `;
     container.appendChild(row);
@@ -59,7 +73,7 @@ function loadExample() {
 
 function collectFormData() {
     const days = document.getElementById('days').value.split(',').map(d => d.trim());
-    const periodsPerDay = parseInt(document.getElementById('periods').value);
+    const periodsPerDay = parseInt(document.getElementById('periods').value, 10);
     
     const subjectRows = document.querySelectorAll('.subject-row');
     const teachers = new Map();
@@ -68,10 +82,13 @@ function collectFormData() {
     subjectRows.forEach((row, index) => {
         const subjectName = row.querySelector('.subject-name').value.trim();
         const teacherName = row.querySelector('.teacher-name').value.trim();
-        const hours = parseInt(row.querySelector('.subject-hours').value);
+        const hours = parseInt(row.querySelector('.subject-hours').value, 10);
         
-        if (subjectName && teacherName && hours) {
-            const teacherId = `T${index + 1}`;
+        if (subjectName || teacherName || Number.isFinite(hours)) {
+            if (!subjectName || !teacherName || !Number.isInteger(hours) || hours < 1) {
+                throw new Error('Each subject needs a name, teacher, and positive hours');
+            }
+            const teacherId = `T${teachers.size + 1}`;
             if (!teachers.has(teacherName)) {
                 teachers.set(teacherName, teacherId);
             }
@@ -90,9 +107,12 @@ function collectFormData() {
     
     roomRows.forEach(row => {
         const roomId = row.querySelector('.room-id').value.trim();
-        const capacity = parseInt(row.querySelector('.room-capacity').value);
+        const capacity = parseInt(row.querySelector('.room-capacity').value, 10);
         
-        if (roomId && capacity) {
+        if (roomId || Number.isFinite(capacity)) {
+            if (!roomId || !Number.isInteger(capacity) || capacity < 1) {
+                throw new Error('Each room needs an ID and positive capacity');
+            }
             rooms.push({ id: roomId, capacity: capacity });
         }
     });
@@ -102,7 +122,8 @@ function collectFormData() {
         name: name
     }));
     
-    if (days.length === 0) throw new Error('Please enter at least one day');
+    if (days.length === 0 || days.some(day => !day)) throw new Error('Please enter at least one valid day');
+    if (!Number.isInteger(periodsPerDay) || periodsPerDay < 1) throw new Error('Periods per day must be positive');
     if (classes.length === 0) throw new Error('Please add at least one subject');
     if (rooms.length === 0) throw new Error('Please add at least one room');
     
@@ -123,7 +144,7 @@ async function generateTimetable() {
         const seedInput = document.getElementById('seed').value;
         const seed = seedInput ? parseInt(seedInput) : Math.floor(Math.random() * 10000);
         
-        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('loadingOverlay').style.display = 'grid';
         document.getElementById('outputSection').style.display = 'none';
         
         const jsonInput = JSON.stringify(formData);
@@ -183,19 +204,23 @@ function displayResults(result) {
     
     try {
         currentTimetableData = JSON.parse(downloadJson);
+        if (currentTimetableData.error) {
+            showError(currentTimetableData.error);
+            return;
+        }
         
         document.getElementById('outputSection').style.display = 'block';
         
         const statusDiv = document.getElementById('statusMessage');
-        if (warning) {
-            statusDiv.innerHTML = warning;
-        }
+        statusDiv.innerHTML = currentTimetableData.final_fitness === 0
+            ? '<div class="status-success">✓ Perfect schedule generated with no conflicts</div>'
+            : `<div class="status-warning">⚠ ${Math.abs(currentTimetableData.final_fitness)} penalty points remain. You can try more generations.</div>`;
         
         const fitnessDiv = document.getElementById('fitnessInfo');
         fitnessDiv.innerHTML = `
-            <strong>Final Fitness:</strong> ${currentTimetableData.final_fitness}<br>
-            <strong>Generations Run:</strong> ${currentTimetableData.generations_run}<br>
-            <strong>Status:</strong> ${currentTimetableData.final_fitness === 0 ? '✅ Perfect!' : '⚠️ Suboptimal'}
+            <div class="metric"><div class="metric-label">FINAL FITNESS</div><div class="metric-value ${currentTimetableData.final_fitness === 0 ? 'good' : 'warn'}">${currentTimetableData.final_fitness}</div></div>
+            <div class="metric"><div class="metric-label">GENERATIONS RUN</div><div class="metric-value">${currentTimetableData.generations_run}</div></div>
+            <div class="metric"><div class="metric-label">SCHEDULE STATUS</div><div class="metric-value ${currentTimetableData.final_fitness === 0 ? 'good' : 'warn'}">${currentTimetableData.final_fitness === 0 ? 'Ready' : 'Review'}</div></div>
         `;
         
         renderTimetable(currentTimetableData.timetable);
@@ -219,7 +244,7 @@ function renderTimetable(timetable) {
     const subjects = new Set();
     timetable.forEach(day => {
         day.periods.forEach(period => {
-            if (period.subject) subjects.add(period.subject);
+            period.classes.forEach(classItem => subjects.add(classItem.subject));
         });
     });
     
@@ -242,14 +267,17 @@ function renderTimetable(timetable) {
         timetable.forEach(day => {
             const period = day.periods[p];
             
-            if (!period.subject) {
+            if (!period.classes || period.classes.length === 0) {
                 html += '<td class="free">Free</td>';
             } else {
-                const bgColor = subjectColorMap[period.subject];
-                html += `<td style="background-color: ${bgColor};">`;
-                html += `<div style="font-weight:bold;">${period.subject}</div>`;
-                html += `<div style="color:#555;">${period.teacher}</div>`;
-                html += `<div style="color:#888;font-size:0.9em;">Room: ${period.room}</div>`;
+                html += '<td>';
+                period.classes.forEach(classItem => {
+                    const bgColor = subjectColorMap[classItem.subject];
+                    html += `<div class="schedule-item" style="background-color: ${bgColor};">`;
+                    html += `<strong>${escapeHtml(classItem.subject)}</strong>`;
+                    html += `<span>${escapeHtml(classItem.teacher)} · ${escapeHtml(classItem.room)}</span>`;
+                    html += '</div>';
+                });
                 html += '</td>';
             }
         });
@@ -350,7 +378,7 @@ function showError(message) {
         `;
     }
     
-    document.getElementById('statusMessage').innerHTML = `<div class="status-error">${errorMessage}</div>`;
+    document.getElementById('statusMessage').innerHTML = `<div class="status-error">× ${errorMessage}</div>`;
     document.getElementById('fitnessInfo').innerHTML = '';
     document.getElementById('timetableContainer').innerHTML = '';
     
@@ -359,4 +387,5 @@ function showError(message) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+    showToast(message);
 }

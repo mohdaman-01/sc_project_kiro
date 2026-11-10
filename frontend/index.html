@@ -3,92 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GA Timetable Scheduler - Offline</title>
+    <meta name="theme-color" content="#111827">
+    <title>Timetable Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎓 GA Timetable Scheduler</h1>
-            <p class="subtitle">Genetic Algorithm-based scheduling — runs 100% offline on localhost</p>
-            <div class="setup-note">
-                ⚠️ <strong>Backend Required:</strong> Start with: <code>python app.py</code>
-            </div>
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="#" aria-label="Timetable Studio home">
+                <span class="brand-mark">TS</span>
+                <span>
+                    <strong>Timetable Studio</strong>
+                    <small>Smart scheduling, beautifully simple</small>
+                </span>
+            </a>
+            <div class="connection-pill"><span class="status-dot"></span> Local engine ready</div>
         </header>
 
-        <main>
-            <section class="input-section">
-                <h2>Configuration</h2>
-                
-                <div class="form-group">
-                    <label for="days">Days (comma-separated)</label>
-                    <input type="text" id="days" value="Monday,Tuesday,Wednesday,Thursday,Friday">
+        <main class="page">
+            <section class="hero">
+                <div>
+                    <span class="eyebrow">GENETIC ALGORITHM SCHEDULER</span>
+                    <h1>Build a better week.</h1>
+                    <p>Design balanced class schedules with fewer conflicts, less guesswork, and a clear view of every room.</p>
                 </div>
-
-                <div class="form-group">
-                    <label for="periods">Periods per Day</label>
-                    <input type="number" id="periods" value="6" min="1" max="12">
-                </div>
-
-                <h3>Subjects & Teachers</h3>
-                <div id="subjects-container"></div>
-                <button type="button" class="btn-secondary" onclick="addSubjectRow()">+ Add Subject</button>
-
-                <h3>Rooms</h3>
-                <div id="rooms-container"></div>
-                <button type="button" class="btn-secondary" onclick="addRoomRow()">+ Add Room</button>
-
-                <h3>GA Parameters</h3>
-                
-                <div class="form-group">
-                    <label for="popSize">Population Size: <span id="popSizeValue">100</span></label>
-                    <input type="range" id="popSize" min="50" max="500" step="10" value="100" oninput="document.getElementById('popSizeValue').textContent = this.value">
-                </div>
-
-                <div class="form-group">
-                    <label for="generations">Generations: <span id="generationsValue">300</span></label>
-                    <input type="range" id="generations" min="100" max="1000" step="50" value="300" oninput="document.getElementById('generationsValue').textContent = this.value">
-                </div>
-
-                <div class="form-group">
-                    <label for="seed">Random Seed (optional)</label>
-                    <input type="number" id="seed" placeholder="e.g., 42">
-                </div>
-
-                <div class="button-group">
-                    <button type="button" class="btn-primary" onclick="loadExample()">Load Example</button>
-                    <button type="button" class="btn-primary" onclick="generateTimetable()">Generate Timetable</button>
+                <div class="hero-actions">
+                    <button type="button" class="btn btn-ghost" onclick="loadExample()">↺ Reset example</button>
+                    <button type="button" class="btn btn-primary" onclick="generateTimetable()"><span>Generate schedule</span><span class="btn-arrow">→</span></button>
                 </div>
             </section>
 
-            <section class="output-section" id="outputSection" style="display: none;">
-                <h2>Results</h2>
-                
-                <div id="statusMessage"></div>
-                <div id="fitnessInfo" class="fitness-info"></div>
-                <div id="timetableContainer"></div>
+            <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+            <div class="workspace-grid">
+                <section class="card config-card">
+                    <div class="card-heading">
+                        <div>
+                            <span class="step-badge">01</span>
+                            <h2>Schedule setup</h2>
+                            <p>Tell us what your week looks like.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-grid two">
+                        <label class="field">
+                            <span>School days</span>
+                            <input type="text" id="days" value="Monday,Tuesday,Wednesday,Thursday,Friday">
+                            <small>Separate days with commas</small>
+                        </label>
+                        <label class="field">
+                            <span>Periods per day</span>
+                            <input type="number" id="periods" value="6" min="1" max="12">
+                            <small>How many teaching slots each day?</small>
+                        </label>
+                    </div>
+
+                    <div class="section-divider">
+                        <div>
+                            <h3>Subjects & teachers</h3>
+                            <p>Each subject needs a teacher and weekly hours.</p>
+                        </div>
+                        <button type="button" class="btn btn-small btn-soft" onclick="addSubjectRow()">+ Add subject</button>
+                    </div>
+                    <div class="column-labels subject-labels"><span>Subject</span><span>Teacher</span><span>Hours / week</span><span></span></div>
+                    <div id="subjects-container" class="rows-container"></div>
+
+                    <div class="section-divider">
+                        <div>
+                            <h3>Rooms</h3>
+                            <p>Rooms can host simultaneous classes independently.</p>
+                        </div>
+                        <button type="button" class="btn btn-small btn-soft" onclick="addRoomRow()">+ Add room</button>
+                    </div>
+                    <div class="column-labels room-labels"><span>Room ID</span><span>Capacity</span><span></span></div>
+                    <div id="rooms-container" class="rows-container"></div>
+                </section>
+
+                <aside class="card controls-card">
+                    <div class="card-heading">
+                        <div>
+                            <span class="step-badge">02</span>
+                            <h2>Optimization</h2>
+                            <p>Control the search quality and speed.</p>
+                        </div>
+                    </div>
+
+                    <label class="range-field">
+                        <span><b>Population size</b><strong id="popSizeValue">100</strong></span>
+                        <input type="range" id="popSize" min="50" max="500" step="10" value="100" oninput="document.getElementById('popSizeValue').textContent = this.value">
+                        <small>More candidates can find better solutions.</small>
+                    </label>
+                    <label class="range-field">
+                        <span><b>Generations</b><strong id="generationsValue">300</strong></span>
+                        <input type="range" id="generations" min="100" max="1000" step="50" value="300" oninput="document.getElementById('generationsValue').textContent = this.value">
+                        <small>More iterations improve complex schedules.</small>
+                    </label>
+                    <label class="field">
+                        <span>Random seed <em>optional</em></span>
+                        <input type="number" id="seed" placeholder="Leave blank for a fresh result">
+                        <small>Use a seed to reproduce the same schedule.</small>
+                    </label>
+
+                    <div class="tip-box">
+                        <span class="tip-icon">✦</span>
+                        <div><strong>Good to know</strong><p>The engine automatically avoids teacher clashes and assigns classes across available rooms.</p></div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-full" onclick="generateTimetable()">Generate schedule <span class="btn-arrow">→</span></button>
+                </aside>
+            </div>
+
+            <section class="card output-section" id="outputSection" style="display: none;">
+                <div class="results-heading">
+                    <div>
+                        <span class="eyebrow">YOUR RESULT</span>
+                        <h2>Weekly timetable</h2>
+                    </div>
+                    <button type="button" class="btn btn-soft" onclick="downloadJSON()">↓ Download JSON</button>
+                </div>
+                <div id="statusMessage"></div>
+                <div id="fitnessInfo" class="metrics-grid"></div>
+                <div id="timetableContainer" class="timetable-wrap"></div>
                 <div class="chart-container">
-                    <h3>Fitness Evolution</h3>
+                    <div class="chart-heading"><div><h3>Fitness evolution</h3><p>How the algorithm improved your schedule.</p></div><span class="chart-legend"><i></i> Best fitness</span></div>
                     <canvas id="fitnessChart"></canvas>
                 </div>
-
-                <div class="button-group">
-                    <button type="button" class="btn-secondary" onclick="downloadJSON()">Download JSON</button>
-                </div>
             </section>
-
-            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-                <div class="spinner"></div>
-                <p>GA running... This may take 2-10 seconds</p>
-            </div>
         </main>
 
-        <footer>
-            <p>🧬 Powered by Genetic Algorithms | 100% Offline</p>
-        </footer>
+        <footer><span>Timetable Studio</span><span>Runs locally on your machine · No data leaves your computer</span></footer>
     </div>
 
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;" aria-live="polite">
+        <div class="loading-card">
+            <div class="loader-ring"></div>
+            <h2>Optimizing your week</h2>
+            <p>Searching thousands of possible schedules…</p>
+            <div class="loading-bar"><span></span></div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
